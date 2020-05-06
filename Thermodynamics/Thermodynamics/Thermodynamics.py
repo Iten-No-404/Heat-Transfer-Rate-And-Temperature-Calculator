@@ -2,13 +2,15 @@ import PySimpleGUI as GUI   #For some decent UI (check the documentation/cook bo
 import numpy as np             
 import matplotlib.pyplot as plt  #This and the previous library are for graphing
 
+
+
 while True: #The windows has to be running until the user exits (breaks)
 
     #Input Window
     GUI.theme('Material1')   # there
     # Creating Window Text, Text Boxes and Buttons
     Layout = [
-      [GUI.Text('                              Medium Info  ')],
+      [GUI.Text('                       Medium Info in SI Units  ')],
       [GUI.Text('Temperature at the left border (Tₒ) :')], [GUI.InputText()],
       [GUI.Text('Temperature at the right border ( Tₛ) :')], [GUI.InputText()],
       [GUI.Text('Constant Kₒ :')], [GUI.InputText()],
@@ -25,43 +27,62 @@ while True: #The windows has to be running until the user exits (breaks)
 
     # Interacting to the users clicks
     while True:
-        Click, Variable = window.read() #This returns actions in 'Click' and entereds variables in Variable[i]
+        Click, V = window.read() #This returns actions in 'Click' and entereds Variables in V[i]
         if Click in (None, 'Quit'):   # if the user clicks Quit
             window.close()
         elif Click in ( 'Scan'):        #if the user clicks Scan
-            if not (Variable[0] and Variable[1] and Variable[2] and Variable[3] and Variable[4] and Variable[5] and Variable[6]): 
-                #Variable[0] 0 corresponds to Tₒ Variable [1] corresponds to  Tₛ and so on, here we're just checking if any of them is not given (null)
+            if not (V[0] and V[1] and V[2] and V[3] and V[4] and V[5] and V[6]): 
+                #V[0] 0 corresponds to Tₒ V [1] corresponds to  Tₛ and so on, here we're just checking if any of them is not given (null)
                 GUI.theme('Material1') #in case any of them isn't given we create a new window
-                Layout= [  [GUI.Text('Some variables are missing, please fill the list')],
+                Layout= [  [GUI.Text('Some Variables are missing, please fill the list')],
                 [GUI.Button('Back')] ]
                 newwindow=GUI.Window('Missing Info', Layout)
                 while True:
-                    newClick, newVariable = newwindow.read() 
+                    newClick, newV = newwindow.read() 
                     if newClick in ( None, 'Back'): #in the new window if the user clicks back it exits the new window (goes to newwindow.close())
                         break
                 newwindow.close()
-            else: #otherwise if all variables are given, a different window with the solution has to appear
+            else: #otherwise if all Variables are given, a different window with the solution has to appear
                 GUI.theme('Material1')
-                TSolution= -1 #we need to write the equation of T here so this gives the value of T when called
-                QSolution= 3+2j #we need to write the equation of heat flow rate here so this gives the value of Q when called
-                Layout= [  [GUI.Text('Laplace Equation Solves To : ')],
-                         [GUI.Text("T="+str(int(Variable[4])*int(Variable[3]))+'X'+'+'+Variable[5])], #Would look cool if we show the user the equation
-                          [GUI.Text('Which corresponds to a temperature of '+str(TSolution)+' Kelvins and a heat flow rate of '+str(QSolution)+' at the given point')],#as well as the solution at the specified point
-                [GUI.Button('Try a different point')],
+            
+                T0,TF,K0,B,L,X,A=int(V[0]),int(V[1]),int(V[2]),int(V[3]),int(V[4]),int(V[5]),int(V[6])
+                C0=K0*(T0+0.5*B*(T0**2));
+                C1=(K0*(TF+0.5*B*(TF**2))-C0)/L;
+                TSolution= (-K0+(K0**2+2*K0*B*(C1*X+C0))**0.5)/(K0*B) #T Equations
+                QSolution= A*(-C1) #Q Equation
+                
+                if(X>=0 and X<=L): #We can only find T and Q within the boundary
+                    Layout= [  [GUI.Text('Laplace Equation Solves To : ')],
+                         [GUI.Text( 'T = ('+str(-K0)+'+ ('+str(round(K0**2+C0*B*K0*2,3))+'+'+str(round(B*K0*2*C1,3))+'x)'+'^-0.5'+')'+'/'+str(K0*B)+' where x ∈ ['+str(0)+' , '+str(L)+']')], 
+                          [GUI.Text('Which corresponds to a temperature of '+str(round(TSolution,3))+' Kelvins and a heat flow rate of '+str(round(QSolution,3))+' Watts at x='+str(X))],#as well as the solution at the specified point
+                        [GUI.Button('Graph')],
+                          [GUI.Button('Try a different point')],
                          [GUI.Button('Quit')]]
+                else :
+                    Layout= [  [GUI.Text('Laplace Equation Solves To : ')],
+                         [GUI.Text( 'T = ('+str(-K0)+'+ ('+str(round(K0**2+C0*B*K0*2,3))+'+'+str(round(B*K0*2*C1,3))+'x)'+'^-0.5'+')'+'/'+str(K0*B)+' where x ∈ ['+str(0)+' , '+str(L)+']')], 
+                          [GUI.Text('Which corresponds to an unknown temperature and an unknown heat flow rate at x='+str(X))],#as well as the solution at the specified point
+                        [GUI.Button('Graph')],
+                          [GUI.Button('Try a different point')],
+                         [GUI.Button('Quit')]]
+
+
+
                 newwindow_1=GUI.Window('Solution', Layout) #creating the initialized window
-                #here I was trying to make it graph T vs X, the GUI library doesn't integrate well with the graphing library so it graphs but causes bugs, this will be revistsed
-                #def graph (formula,range):
-                    #x=np.array(range)
-                    #T=formula(x)
-                    #plt.plot(x,T)
-                  #  plt.show()
-                #def my_formula(x):
-                  #  return x**3+2*x-4
-                #graph(my_formula, range(0, int(Variable[4])))
+                
                 # you can take the code in another python window and see how graphing works
                 while True:
-                    newClick_1, newVariable_1 = newwindow_1.read()
+                    newClick_1, newV_1 = newwindow_1.read()
+                    if newClick_1 in ( 'Graph'): 
+                        def graph (formula,range):
+                            x=np.array(range)
+                            T=formula(x)
+                            plt.plot(x,T)
+                            plt.show(block=False)
+                        def my_formula(x):
+                            return (-K0+(K0**2+2*K0*B*(C1*x+C0))**0.5)/(K0*B)
+                        graph(my_formula, range(0, int(V[4])))
+                       
                     if newClick_1 in ( None, 'Try a different point'): #the user chooses to try a different point, so we exit our new windows
                         break
                     if newClick_1 in (None, 'Quit' ): #here we exit both windows
