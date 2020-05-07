@@ -45,7 +45,7 @@ while True: #The windows has to be running until the user exits (breaks)
             else: #otherwise if all Variables are given, a different window with the solution has to appear
                 GUI.theme('Material1')
             
-                T0,TF,K0,B,L,X,A=int(V[0]),int(V[1]),int(V[2]),int(V[3]),int(V[4]),int(V[5]),int(V[6])
+                T0,TF,K0,B,L,X,A=float(V[0]),float(V[1]),float(V[2]),float(V[3]),float(V[4]),float(V[5]),float(V[6])
                 C0=K0*(T0+0.5*B*(T0**2));
                 C1=(K0*(TF+0.5*B*(TF**2))-C0)/L;
                 TSolution= (-K0+(K0**2+2*K0*B*(C1*X+C0))**0.5)/(K0*B) #T Equations
@@ -56,14 +56,14 @@ while True: #The windows has to be running until the user exits (breaks)
                          [GUI.Text( 'T = ('+str(-K0)+'+ ('+str(round(K0**2+C0*B*K0*2,3))+'+'+str(round(B*K0*2*C1,3))+'x)'+'^-0.5'+')'+'/'+str(K0*B)+' where x ∈ ['+str(0)+' , '+str(L)+']')], 
                           [GUI.Text('Which corresponds to a temperature of '+str(round(TSolution,3))+' Kelvins and a heat flow rate of '+str(round(QSolution,3))+' Watts at x='+str(X))],#as well as the solution at the specified point
                         [GUI.Button('Graph')],
-                          [GUI.Button('Try a different point')],
+                          [GUI.Button('Try different inputs')],
                          [GUI.Button('Quit')]]
                 else :
                     Layout= [  [GUI.Text('Laplace Equation Solves To : ')],
                          [GUI.Text( 'T = ('+str(-K0)+'+ ('+str(round(K0**2+C0*B*K0*2,3))+'+'+str(round(B*K0*2*C1,3))+'x)'+'^-0.5'+')'+'/'+str(K0*B)+' where x ∈ ['+str(0)+' , '+str(L)+']')], 
                           [GUI.Text('Which corresponds to an unknown temperature and an unknown heat flow rate at x='+str(X))],#as well as the solution at the specified point
                         [GUI.Button('Graph')],
-                          [GUI.Button('Try a different point')],
+                          [GUI.Button('Try different inputs')],
                          [GUI.Button('Quit')]]
 
 
@@ -83,7 +83,7 @@ while True: #The windows has to be running until the user exits (breaks)
                             return (-K0+(K0**2+2*K0*B*(C1*x+C0))**0.5)/(K0*B)
                         graph(my_formula, range(0, int(V[4])))
                        
-                    if newClick_1 in ( None, 'Try a different point'): #the user chooses to try a different point, so we exit our new windows
+                    if newClick_1 in ( None, 'Try different inputs'): #the user chooses to try a different point, so we exit our new windows
                         break
                     if newClick_1 in (None, 'Quit' ): #here we exit both windows
                         window.close()
